@@ -10,6 +10,18 @@ import lightTheme from './themes/light/index';
 
 const test = renderTest(Test);
 const testItem = renderTest(TestItem, { index: 0 });
+const darkFontUrl = 'http://fonts.googleapis.com/css?family=Droid+Sans';
+const lightFontUrl = 'http://fonts.googleapis.com/css?family=Droid+Sans+Mono';
+
+function getHeight(node) {
+  const computedStyle = window.getComputedStyle(node, null);
+  return computedStyle.getPropertyValue('height');
+}
+
+function getFontFamily(node) {
+  const computedStyle = window.getComputedStyle(node, null);
+  return computedStyle.getPropertyValue('font-family');
+}
 
 function getBgColor(node) {
   const computedStyle = window.getComputedStyle(node, null);
@@ -23,8 +35,13 @@ function getColor(node) {
 
 describe('react-redux-provide-theme', () => {
   it('should render correctly with initialized dark theme', () => {
+    expect(document.getElementsByTagName('style').length).toBe(2);
+    
     expect(test.node.tagName).toBe('DIV');
     expect(test.node.childNodes.length).toBe(1);
+
+    expect(getHeight(document.body)).toBe('100%');
+    expect(getFontFamily(document.body)).toBe('Droid Sans');
 
     expect(getBgColor(test.node)).toBe('rgb(0, 0, 0)');
     expect(getColor(test.node)).toBe('rgb(255, 255, 255)');
@@ -35,11 +52,23 @@ describe('react-redux-provide-theme', () => {
     expect(getColor(testItem.node)).toBe('rgb(221, 221, 221)');
   });
 
+  it('should have loaded the dark theme\'s font', () => {
+    const link = document.getElementsByTagName('link')[0];
+
+    expect(link).toBeTruthy();
+    expect(link.href).toBe(darkFontUrl);
+  });
+
   it('should render correctly upon switching to light theme', () => {
     test.wrappedInstance.props.setTheme(lightTheme);
 
+    expect(document.getElementsByTagName('style').length).toBe(2);
+
     expect(test.node.tagName).toBe('DIV');
     expect(test.node.childNodes.length).toBe(1);
+
+    expect(getHeight(document.body)).toBe('100%');
+    expect(getFontFamily(document.body)).toBe('Droid Sans Mono');
 
     expect(getBgColor(test.node)).toBe('rgb(255, 255, 255)');
     expect(getColor(test.node)).toBe('rgb(0, 0, 0)');
@@ -48,5 +77,12 @@ describe('react-redux-provide-theme', () => {
     expect(getColor(test.node.childNodes[0])).toBe('rgb(51, 51, 51)');
     expect(getBgColor(testItem.node)).toBe('rgb(221, 221, 221)');
     expect(getColor(testItem.node)).toBe('rgb(51, 51, 51)');
+  });
+
+  it('should have loaded the light theme\'s font', () => {
+    const link = document.getElementsByTagName('link')[1];
+
+    expect(link).toBeTruthy();
+    expect(link.href).toBe(lightFontUrl);
   });
 });
