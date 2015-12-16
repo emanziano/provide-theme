@@ -84,7 +84,7 @@ function merge (stateProps, dispatchProps, parentProps) {
 const enhancer = next => (reducer, initialState) => {
   const store = next(reducer, initialState);
 
-  if (initialState.theme) {
+  if (initialState && initialState.theme) {
     store.dispatch(actions.setTheme(initialState.theme));
   }
 
