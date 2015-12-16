@@ -1,0 +1,63 @@
+{
+  "name": "react-redux-provide-theme",
+  "version": "0.1.0",
+  "description": "Provides themes as classes created by JSS to React components.",
+  "main": "./lib/index.js",
+  "scripts": {
+    "build:lib": "babel src --out-dir lib",
+    "build:umd": "webpack src/index.js dist/react-redux-provide-theme.js --config webpack.config.development.js",
+    "build:umd:min": "webpack src/index.js dist/react-redux-provide-theme.min.js --config webpack.config.production.js",
+    "build": "npm run build:lib && npm run build:umd && npm run build:umd:min",
+    "clean": "rimraf lib dist coverage",
+    "prepublish": "npm run clean && npm run build",
+    "test": "mocha --compilers js:babel/register --recursive --require react-redux-provide-test-utils/lib/setup.js",
+    "test:watch": "npm test -- --watch",
+    "test:cov": "babel-node ./node_modules/isparta/bin/isparta cover ./node_modules/mocha/bin/_mocha -- --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loggur/react-redux-provide-theme.git"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "provide",
+    "theme",
+    "classes",
+    "jss"
+  ],
+  "author": "loggur",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/loggur/react-redux-provide-theme/issues"
+  },
+  "homepage": "https://github.com/loggur/react-redux-provide-theme",
+  "devDependencies": {
+    "babel": "^5.8.21",
+    "babel-core": "^5.8.22",
+    "babel-loader": "^5.3.2",
+    "expect": "^1.8.0",
+    "isparta": "^3.0.3",
+    "istanbul": "^0.3.17",
+    "jsdom": "~5.4.3",
+    "mocha": "^2.2.5",
+    "react-addons-test-utils": "^0.14.0",
+    "react-redux-provide-list": "^0.4.0",
+    "react-redux-provide-test-utils": "^0.1.3",
+    "react-tools": "^0.10.0",
+    "rimraf": "^2.3.4",
+    "webpack": "^1.11.0"
+  },
+  "dependencies": {
+    "jss": "^3.2.0",
+    "jss-camel-case": "^1.0.0",
+    "jss-extend": "^1.1.0",
+    "jss-nested": "^1.0.1",
+    "jss-props-sort": "^1.0.0",
+    "jss-px": "^1.0.0",
+    "jss-vendor-prefixer": "^1.0.1",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "react-redux-provide": "^4.1.0"
+  }
+}
