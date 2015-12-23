@@ -1,4 +1,5 @@
-import WebFont from 'webfontloader';
+import { canUseDOM } from 'exenv';
+
 import jss from 'jss';
 import jssExtend from 'jss-extend';
 import jssNested from 'jss-nested';
@@ -11,10 +12,12 @@ jss.use(jssExtend());
 jss.use(jssNested());
 jss.use(jssCamelCase());
 jss.use(jssPx());
-jss.use(jssVendorPrefixer());
+if (canUseDOM) {
+  jss.use(jssVendorPrefixer());
+}
 jss.use(jssPropsSort());
 
-const SET_THEME = 'SET_THEME';
+export const SET_THEME = 'SET_THEME';
 
 const actions = {
   setTheme(theme) {
@@ -26,10 +29,6 @@ const reducers = {
   theme(state = {}, action) {
     switch (action.type) {
       case SET_THEME:
-        if (action.theme.font) {
-          WebFont.load(action.theme.font);
-        }
-
         return action.theme;
 
       default:
@@ -92,4 +91,3 @@ const enhancer = next => (reducer, initialState) => {
 };
 
 export default { actions, reducers, merge, enhancer };
-

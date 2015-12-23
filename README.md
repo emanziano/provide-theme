@@ -15,14 +15,11 @@ npm install react-redux-provide-theme --save
 
 ## Usage
 
-> **Note:**  This will only work clientside at the moment.  Server rendering coming soon!
-
 This provides React components with interchangeable themes and automatically namespaced classNames via the following `propTypes`:
 
 - `setTheme (Object theme)` - the `theme` object may contain any combination of the following, plus any other properties you deem necessary:
   - `styles` object - each key within this object will be automatically namespaced and added to your app's stylesheet by [`jss`](https://github.com/jsstyles/jss); you can then obtain the namespaced classNames via the reduced `classes` prop
   - `globalStyles` object - useful when you need to specify global styles; e.g., `body`, `button`, etc.
-  - `font` object - as a convenience, this provider uses [`WebFontLoader`](https://github.com/typekit/webfontloader) to automatically load fonts as necessary depending on your theme; this object is the font configuration object passed to the `WebFont.load` function
 
 Your components may also be provided the following reduced props:
 
