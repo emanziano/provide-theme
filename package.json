@@ -60,6 +60,7 @@
     "jss-vendor-prefixer": "^1.0.1",
     "react": "^0.14.0",
     "react-dom": "^0.14.0",
-    "react-redux-provide": "^4.1.0 || ^5.0.0"
+    "react-redux-provide": "^5.1.0",
+    "redux-thunk": "^1.0.3"
   }
 }
