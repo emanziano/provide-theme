@@ -56,7 +56,7 @@ const actions = {
       }
     }
 
-    return { type: INIT_THEME, themeName, theme, link, script };
+    return { type: INIT_THEME, themeName, theme, themeFiles, link, script };
   },
 
   loadTheme(themeName, themeFiles) {
@@ -78,7 +78,9 @@ const actions = {
         script.type = 'text/javascript';
         script.onload = () => {
           theme = window[themeName].default || window[themeName];
-          dispatch({ type: LOAD_THEME, themeName, theme, link, script });
+          dispatch({
+            type: LOAD_THEME, themeName, theme, themeFiles, link, script
+          });
         };
         script.src = jsFile;
       };
@@ -87,7 +89,9 @@ const actions = {
         const { themes } = getState();
 
         theme = themes && themes[themeName] || null;
-        dispatch({ type: LOAD_THEME, themeName, theme, link, script });
+        dispatch({
+          type: LOAD_THEME, themeName, theme, themeFiles, link, script
+        });
       };
     }
   }
@@ -108,6 +112,17 @@ const reducers = {
     switch (action.type) {
       case SET_THEMES_FILES:
         return action.themesFiles;
+
+      default:
+        return state;
+    }
+  },
+
+  themeFiles(state = null, action) {
+    switch (action.type) {
+      case INIT_THEME:
+      case LOAD_THEME:
+        return action.themeFiles;
 
       default:
         return state;
@@ -206,7 +221,7 @@ const enhancer = next => (reducer, initialState) => {
   const store = next(reducer, initialState);
   const state = initialState || {};
   const { themes, themesFiles, themeName } = state;
-  const theme = state.theme || themes && themes[themeName];
+  const theme = themes && themes[themeName] || state.theme;
   const themeFiles = themesFiles && themesFiles[themeName];
   let initAction = null;
 

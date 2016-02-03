@@ -40,7 +40,7 @@ function getColor(node) {
   return computedStyle.getPropertyValue('color');
 }
 
-describe('react-redux-provide-theme', () => {
+describe('provide-theme', () => {
   it('should render correctly with initialized dark theme', () => {
     expect(document.getElementsByTagName('style').length).toBe(2);
     

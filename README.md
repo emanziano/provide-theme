@@ -1,7 +1,7 @@
-# react-redux-provide-theme
+# provide-theme
 
-[![build status](https://img.shields.io/travis/loggur/react-redux-provide-theme/master.svg?style=flat-square)](https://travis-ci.org/loggur/react-redux-provide-theme) [![npm version](https://img.shields.io/npm/v/react-redux-provide-theme.svg?style=flat-square)](https://www.npmjs.com/package/react-redux-provide-theme)
-[![npm downloads](https://img.shields.io/npm/dm/react-redux-provide-theme.svg?style=flat-square)](https://www.npmjs.com/package/react-redux-provide-theme)
+[![build status](https://img.shields.io/travis/loggur/provide-theme/master.svg?style=flat-square)](https://travis-ci.org/loggur/provide-theme) [![npm version](https://img.shields.io/npm/v/provide-theme.svg?style=flat-square)](https://www.npmjs.com/package/provide-theme)
+[![npm downloads](https://img.shields.io/npm/dm/provide-theme.svg?style=flat-square)](https://www.npmjs.com/package/provide-theme)
 
 Provides themes as classes created by JSS to React components.
 
@@ -9,7 +9,7 @@ Provides themes as classes created by JSS to React components.
 ## Installation
 
 ```
-npm install react-redux-provide-theme --save
+npm install provide-theme --save
 ```
 
 
