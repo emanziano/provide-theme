@@ -59,11 +59,10 @@ const actions = {
     return { type: INIT_THEME, themeName, theme, themeFiles, link, script };
   },
 
-  loadTheme(themeName, themeFiles) {
+  loadTheme(themeName, themeFiles, theme) {
     const { jsFile, cssFile } = themeFiles;
     let script = null;
     let link = null;
-    let theme = null;
 
     if (canUseDOM) {
       return dispatch => {
@@ -76,12 +75,18 @@ const actions = {
         script = document.createElement('script');
         document.head.appendChild(script);
         script.type = 'text/javascript';
-        script.onload = () => {
-          theme = window[themeName].default || window[themeName];
+        if (theme) {
           dispatch({
             type: LOAD_THEME, themeName, theme, themeFiles, link, script
           });
-        };
+        } else {
+          script.onload = () => {
+            theme = window[themeName].default || window[themeName];
+            dispatch({
+              type: LOAD_THEME, themeName, theme, themeFiles, link, script
+            });
+          };
+        }
         script.src = jsFile;
       };
     } else {
@@ -196,7 +201,7 @@ const reducers = {
         return link || null;
 
       default:
-        return canUseDOM && state instanceof HTMLElement ? state : null;
+        return canUseDOM && state instanceof window.HTMLElement ? state : null;
     }
   },
 
@@ -212,7 +217,7 @@ const reducers = {
         return script || null;
 
       default:
-        return canUseDOM && state instanceof HTMLElement ? state : null;
+        return canUseDOM && state instanceof window.HTMLElement ? state : null;
     }
   }
 };
@@ -231,9 +236,9 @@ const enhancer = next => (reducer, initialState) => {
     if (initAction && (!canUseDOM || initAction.link && initAction.script)) {
       store.dispatch(initAction);
     } else if (canUseDOM) {
-      actions.loadTheme(themeName, themeFiles)(store.dispatch);
+      actions.loadTheme(themeName, themeFiles, theme)(store.dispatch);
     } else {
-      store.dispatch(actions.loadTheme(themeName, themeFiles));
+      store.dispatch(actions.loadTheme(themeName, themeFiles, theme));
     }
   }
 

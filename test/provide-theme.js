@@ -4,12 +4,23 @@ import { Simulate } from 'react-addons-test-utils';
 import { renderTest } from 'react-redux-provide-test-utils';
 import { Test } from './components/index';
 import providers from './providers/index';
-import { darkTheme, lightTheme } from './themes/index';
+import themes from './themes/index';
+import themesFiles from './themes/files';
 
-const context = {
+const themeNames = Object.keys(themesFiles);
+let themeName = themeNames.shift();
+let themeFiles = themesFiles[themeName];
+let theme = themes[themeName];
+
+const props = {
   providers,
   providedState: {
-    theme: darkTheme,
+    themes,
+    themesFiles,
+    themeFiles,
+    themeName,
+    theme,
+    classes: theme.classes,
     list: [
       {
         value: 'test'
@@ -18,60 +29,46 @@ const context = {
   }
 };
 
-const test = renderTest(Test, { ...context });
-
-function getHeight(node) {
-  const computedStyle = window.getComputedStyle(node, null);
-  return computedStyle.getPropertyValue('height');
-}
-
-function getFontFamily(node) {
-  const computedStyle = window.getComputedStyle(node, null);
-  return computedStyle.getPropertyValue('font-family');
-}
-
-function getBgColor(node) {
-  const computedStyle = window.getComputedStyle(node, null);
-  return computedStyle.getPropertyValue('background-color');
-}
-
-function getColor(node) {
-  const computedStyle = window.getComputedStyle(node, null);
-  return computedStyle.getPropertyValue('color');
-}
+const test = renderTest(Test, { ...props });
 
 describe('provide-theme', () => {
   it('should render correctly with initialized dark theme', () => {
-    expect(document.getElementsByTagName('style').length).toBe(2);
-    
+    const links = document.getElementsByTagName('link');
+    const link = links[0];
+    const scripts = document.getElementsByTagName('script');
+    const script = scripts[0];
+
+    expect(links.length).toBe(1);
+    expect(link.href).toBe('DarkTheme.css');
+    expect(scripts.length).toBe(1);
+    expect(script.src).toBe('DarkTheme.js');
+
     expect(test.node.tagName).toBe('DIV');
+    expect(test.node.className).toBe('dark__Test');
     expect(test.node.childNodes.length).toBe(1);
-
-    expect(getHeight(document.body)).toBe('100%');
-    expect(getFontFamily(document.body)).toBe('Droid Sans');
-
-    expect(getBgColor(test.node)).toBe('rgb(0, 0, 0)');
-    expect(getColor(test.node)).toBe('rgb(255, 255, 255)');
-
-    expect(getBgColor(test.node.childNodes[0])).toBe('rgb(51, 51, 51)');
-    expect(getColor(test.node.childNodes[0])).toBe('rgb(221, 221, 221)');
+    expect(test.node.childNodes[0].className).toBe('dark__TestItem');
   });
 
   it('should render correctly upon switching to light theme', () => {
-    test.wrappedInstance.props.setTheme(lightTheme);
+    themeName = themeNames.shift();
+    themeFiles = themesFiles[themeName];
+    theme = themes[themeName];
 
-    expect(document.getElementsByTagName('style').length).toBe(2);
+    test.wrappedInstance.props.loadTheme(themeName, themeFiles, theme);
+
+    const links = document.getElementsByTagName('link');
+    const link = links[0];
+    const scripts = document.getElementsByTagName('script');
+    const script = scripts[0];
+
+    expect(links.length).toBe(1);
+    expect(link.href).toBe('LightTheme.css');
+    expect(scripts.length).toBe(1);
+    expect(script.src).toBe('LightTheme.js');
 
     expect(test.node.tagName).toBe('DIV');
+    expect(test.node.className).toBe('light__Test');
     expect(test.node.childNodes.length).toBe(1);
-
-    expect(getHeight(document.body)).toBe('100%');
-    expect(getFontFamily(document.body)).toBe('Droid Sans Mono');
-
-    expect(getBgColor(test.node)).toBe('rgb(255, 255, 255)');
-    expect(getColor(test.node)).toBe('rgb(0, 0, 0)');
-
-    expect(getBgColor(test.node.childNodes[0])).toBe('rgb(221, 221, 221)');
-    expect(getColor(test.node.childNodes[0])).toBe('rgb(51, 51, 51)');
+    expect(test.node.childNodes[0].className).toBe('light__TestItem');
   });
 });

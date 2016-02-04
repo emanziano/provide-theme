@@ -6,7 +6,6 @@ export default class TestItem extends Component {
   static propTypes = {
     index: PropTypes.number.isRequired,
     item: PropTypes.object.isRequired,
-    theme: PropTypes.object.isRequired,
     classes: PropTypes.object.isRequired
   };
 

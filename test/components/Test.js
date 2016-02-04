@@ -6,8 +6,7 @@ import TestItem from './TestItem';
 export default class Test extends Component {
   static propTypes = {
     list: PropTypes.arrayOf(PropTypes.object).isRequired,
-    setTheme: PropTypes.func.isRequired,
-    theme: PropTypes.object.isRequired,
+    loadTheme: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired
   };
 
