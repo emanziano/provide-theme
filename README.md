@@ -3,7 +3,7 @@
 [![build status](https://img.shields.io/travis/loggur/provide-theme/master.svg?style=flat-square)](https://travis-ci.org/loggur/provide-theme) [![npm version](https://img.shields.io/npm/v/provide-theme.svg?style=flat-square)](https://www.npmjs.com/package/provide-theme)
 [![npm downloads](https://img.shields.io/npm/dm/provide-theme.svg?style=flat-square)](https://www.npmjs.com/package/provide-theme)
 
-Provides themes as classes created by JSS to React components.
+Provides themes as classes, images, and icons to React components.
 
 
 ## Installation
@@ -74,6 +74,10 @@ const props = {
 
 render(<App { ...props } />, document.getElementById('root'));
 ```
+
+And for an example of bundled themes in their most basic form, see [`test/themes`](https://github.com/loggur/provide-theme/tree/master/test/themes).
+
+And for an example of how to select a different theme, see [`bloggur`'s `ThemeSelector` component](https://github.com/loggur/bloggur/blob/master/src/components/ThemeSelector.js).
 
 
 ## Full Example w/ Server Rendering
