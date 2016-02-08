@@ -222,7 +222,7 @@ const reducers = {
   }
 };
 
-const enhancer = next => (reducer, initialState) => {
+const enhancer = next => (reducer, initialState, mocked) => {
   const store = next(reducer, initialState);
   const state = initialState || {};
   const { themes, themesFiles, themeName } = state;
@@ -239,6 +239,28 @@ const enhancer = next => (reducer, initialState) => {
       actions.loadTheme(themeName, themeFiles, theme)(store.dispatch);
     } else {
       store.dispatch(actions.loadTheme(themeName, themeFiles, theme));
+    }
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    // TODO: hacky stuff here for hot reloading; figure out something better
+    if (canUseDOM && !mocked) {
+      let lastJs = null;
+
+      store.remove = () => clearInterval(store._themeReloadInterval);
+      store._themeReloadInterval = setInterval(() => {
+        const { themeName, themeFiles, theme } = store.getState();
+        const xhr = new XMLHttpRequest();
+
+        xhr.onload = () => {
+          if (lastJs !== xhr.response) {
+            lastJs = xhr.response;
+            actions.loadTheme(themeName, themeFiles)(store.dispatch);
+          }
+        }
+        xhr.open('GET', themeFiles.jsFile, true);
+        xhr.send();
+      }, 1000);
     }
   }
 
