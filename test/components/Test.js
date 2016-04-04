@@ -1,8 +1,6 @@
 import React, { Component, PropTypes } from 'react';
-import provide from 'react-redux-provide';
 import TestItem from './TestItem';
 
-@provide
 export default class Test extends Component {
   static propTypes = {
     list: PropTypes.arrayOf(PropTypes.object).isRequired,

@@ -1,7 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import provide from 'react-redux-provide';
 
-@provide
 export default class TestItem extends Component {
   static propTypes = {
     index: PropTypes.number.isRequired,

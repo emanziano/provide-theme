@@ -3,8 +3,8 @@ import React, { PropTypes } from 'react';
 import { Simulate } from 'react-addons-test-utils';
 import { renderTest } from 'react-redux-provide-test-utils';
 import { Test } from './components/index';
-import providers from './providers/index';
-import themes from './themes/index';
+import * as providers from './providers/index';
+import * as themes from './themes/index';
 import themesFiles from './themes/files';
 
 const themeNames = Object.keys(themesFiles);
@@ -12,24 +12,34 @@ let themeName = themeNames.shift();
 let themeFiles = themesFiles[themeName];
 let theme = themes[themeName];
 
-const props = {
-  providers,
-  providedState: {
-    themes,
-    themesFiles,
-    themeFiles,
-    themeName,
-    theme,
-    classes: theme.classes,
-    list: [
-      {
-        value: 'test'
+const defaultProps = {
+  providers: {
+    ...providers,
+    theme: {
+      ...providers.theme,
+      state: {
+        themes,
+        themesFiles,
+        themeFiles,
+        themeName,
+        theme,
+        classes: theme.classes,
       }
-    ]
+    },
+    list: {
+      ...providers.list,
+      state: {
+        list: [
+          {
+            value: 'test'
+          }
+        ]
+      }
+    }
   }
 };
 
-const test = renderTest(Test, { ...props });
+const test = renderTest(Test, { ...defaultProps });
 
 describe('provide-theme', () => {
   it('should render correctly with initialized dark theme', () => {

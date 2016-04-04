@@ -1,7 +1,7 @@
 import list from './list';
 import theme from './theme';
 
-export default {
+export {
   list,
   theme
 };

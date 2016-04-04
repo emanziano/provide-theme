@@ -222,8 +222,8 @@ const reducers = {
   }
 };
 
-const enhancer = next => (reducer, initialState, mocked) => {
-  const store = next(reducer, initialState);
+const enhancer = next => (reducer, initialState, enhancer) => {
+  const store = next(reducer, initialState, enhancer);
   const state = initialState || {};
   const { themes, themesFiles, themeName } = state;
   const theme = themes && themes[themeName] || state.theme;
@@ -244,7 +244,7 @@ const enhancer = next => (reducer, initialState, mocked) => {
 
   if (process.env.NODE_ENV !== 'production') {
     // TODO: hacky stuff here for hot reloading; figure out something better
-    if (canUseDOM && !mocked) {
+    /*if (canUseDOM && !mocked) {
       let lastJs = null;
 
       store.remove = () => clearInterval(store._themeReloadInterval);
@@ -261,7 +261,7 @@ const enhancer = next => (reducer, initialState, mocked) => {
         xhr.open('GET', themeFiles.jsFile, true);
         xhr.send();
       }, 1000);
-    }
+    }*/
   }
 
   return store;
