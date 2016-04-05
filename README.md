@@ -96,7 +96,7 @@ The current theme's respective `script` element, mostly used internally when dyn
 import React from 'react';
 import { render } from 'react-dom';
 import { App } from './components/index';
-import * as providers, { theme } from './providers/index';
+import * as providers from './providers/index';
 import themesFiles from './themes/files';
 
 const themeName = Object.keys(themesFiles).shift();
@@ -106,7 +106,7 @@ const defaultProps = {
   providers: {
     ...providers,
     theme: {
-      ...theme,
+      ...providers.theme,
       state: {
         themesFiles,
         themeFiles,
