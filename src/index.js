@@ -6,13 +6,37 @@ export const SET_THEMES_FILES = 'SET_THEMES_FILES';
 export const INIT_THEME = 'INIT_THEME';
 export const LOAD_THEME = 'LOAD_THEME';
 
-const getPathname = (href) => {
+function getPathname(href) {
   try {
     return new URL(href).pathname;
   } catch (error) {
     return error;
   }
-};
+}
+
+function findElementByPathname(tagName, urlAttr, file) {
+  const elements = document.getElementsByTagName(tagName);
+  let index = elements.length;
+  let url = null;
+
+  while (--index >= 0) {
+    url = elements[index][urlAttr];
+
+    if (url === file || getPathname(url) === file) {
+      return elements[index];
+    }
+  }
+
+  return null;
+}
+
+function findLink(cssFile) {
+  return findElementByPathname('link', 'href', cssFile);
+}
+
+function findScript(jsFile) {
+  return findElementByPathname('script', 'src', jsFile);
+}
 
 const actions = {
   setThemes(themes) {
@@ -25,35 +49,12 @@ const actions = {
 
   initTheme(themeName, themeFiles, theme) {
     const { jsFile, cssFile } = themeFiles;
-    let links = null;
     let link = null;
-    let scripts = null;
     let script = null;
-    let index = -1;
-    let href = null;
 
     if (canUseDOM) {
-      links = document.getElementsByTagName('link');
-      index = links.length;
-
-      while (--index >= 0) {
-        href = links[index].href;
-        if (href === cssFile || getPathname(href) === cssFile) {
-          link = links[index];
-          break;
-        }
-      }
-
-      scripts = document.getElementsByTagName('script');
-      index = scripts.length;
-
-      while (--index >= 0) {
-        href = scripts[index].src;
-        if (href === jsFile || getPathname(href) === jsFile) {
-          script = scripts[index];
-          break;
-        }
-      }
+      link = findLink(cssFile);
+      script = findScript(jsFile);
     }
 
     return { type: INIT_THEME, themeName, theme, themeFiles, link, script };
@@ -72,22 +73,24 @@ const actions = {
         link.type = 'text/css';
         link.href = cssFile;
 
-        script = document.createElement('script');
-        document.head.appendChild(script);
-        script.type = 'text/javascript';
-        if (theme) {
+        script = findScript(jsFile);
+
+        if (theme && script) {
           dispatch({
             type: LOAD_THEME, themeName, theme, themeFiles, link, script
           });
         } else {
+          script = document.createElement('script');
+          document.head.appendChild(script);
+          script.type = 'text/javascript';
           script.onload = () => {
             theme = window[themeName].default || window[themeName];
             dispatch({
               type: LOAD_THEME, themeName, theme, themeFiles, link, script
             });
           };
+          script.src = jsFile;
         }
-        script.src = jsFile;
       };
     } else {
       return (dispatch, getState) => {
@@ -211,9 +214,6 @@ const reducers = {
     switch (action.type) {
       case INIT_THEME:
       case LOAD_THEME:
-        if (state && state.parentNode && state !== script) {
-          state.parentNode.removeChild(state);
-        }
         return script || null;
 
       default:
@@ -243,25 +243,15 @@ const enhancer = next => (reducer, initialState, enhancer) => {
   }
 
   if (process.env.NODE_ENV !== 'production') {
-    // TODO: hacky stuff here for hot reloading; figure out something better
-    /*if (canUseDOM && !mocked) {
-      let lastJs = null;
+    if (canUseDOM) {
+      window.themeReloaders.push((reloadedThemeName, theme) => {
+        const { themeName, themeFiles } = store.getState();
 
-      store.remove = () => clearInterval(store._themeReloadInterval);
-      store._themeReloadInterval = setInterval(() => {
-        const { themeName, themeFiles, theme } = store.getState();
-        const xhr = new XMLHttpRequest();
-
-        xhr.onload = () => {
-          if (lastJs !== xhr.response) {
-            lastJs = xhr.response;
-            actions.loadTheme(themeName, themeFiles)(store.dispatch);
-          }
+        if (themeName === reloadedThemeName) {
+          actions.loadTheme(themeName, themeFiles, theme)(store.dispatch);
         }
-        xhr.open('GET', themeFiles.jsFile, true);
-        xhr.send();
-      }, 1000);
-    }*/
+      });
+    }
   }
 
   return store;
@@ -270,3 +260,11 @@ const enhancer = next => (reducer, initialState, enhancer) => {
 const middleware = thunk;
 
 export default { actions, reducers, enhancer, middleware };
+
+if (canUseDOM && !window.themeReloaders) {
+  window.themeReloaders = [];
+}
+
+export function reloadTheme(themeName, theme) {
+  window.themeReloaders.forEach(reloadTheme => reloadTheme(themeName, theme));
+}

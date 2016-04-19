@@ -13,8 +13,9 @@ Each theme should simply be a bundled CSS file and a bundled JS file containing 
 1.  [Installation](#installation)
 2.  [Actions](#actions)
 3.  [Reducers](#reducers)
-7.  [Quick example](#quick-example)
-7.  [Full example with server rendering](#full-example-with-server-rendering)
+4.  [Hot reloading](#hot-reloading)
+5.  [Quick example](#quick-example)
+6.  [Full example with server rendering](#full-example-with-server-rendering)
 
 
 ## Installation
@@ -88,6 +89,38 @@ The current theme's respective `link` element, mostly used internally when dynam
 ### script
 
 The current theme's respective `script` element, mostly used internally when dynamically loading themes on the client.  This element gets removed and another put in its place when changing themes.
+
+
+## Hot reloading
+
+This provider includes an export you can use to hot reload your bundled themes when in the development environment.
+
+### reloadTheme (String themeName, Object theme)
+
+You can use this with something like webpack's `module.hot.accept` function.
+
+```js
+// src/themes/dark/dark.js
+
+import classes from './dark.css';
+
+export default {
+  classes
+};
+
+if (process.env.NODE_ENV !== 'production') {
+  if (module.hot) {
+    const reloadTheme = require('provide-theme').reloadTheme;
+
+    module.hot.accept('./dark.css', () => {
+      reloadTheme('DarkTheme', {
+        classes: require('./dark.css')
+      });
+    });
+  }
+}
+
+```
 
 
 ## Quick example
