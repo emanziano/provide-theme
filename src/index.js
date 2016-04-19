@@ -79,6 +79,11 @@ const actions = {
           dispatch({
             type: LOAD_THEME, themeName, theme, themeFiles, link, script
           });
+        } else if (script) {
+          theme = window[themeName].default || window[themeName];
+          dispatch({
+            type: LOAD_THEME, themeName, theme, themeFiles, link, script
+          });
         } else {
           script = document.createElement('script');
           document.head.appendChild(script);
