@@ -264,7 +264,20 @@ const enhancer = next => (reducer, initialState, enhancer) => {
 
 const middleware = thunk;
 
-export default { actions, reducers, enhancer, middleware };
+const replication = {
+  reducerKeys: ['themeName'],
+  queryable: true
+};
+
+const clientStateKeys = [
+  'themeName',
+  'theme',
+  'themesFiles'
+];
+
+export default {
+  actions, reducers, enhancer, middleware, replication, clientStateKeys
+};
 
 if (canUseDOM && !window.themeReloaders) {
   window.themeReloaders = [];

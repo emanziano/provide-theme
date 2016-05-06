@@ -1,6 +1,6 @@
 {
   "name": "provide-theme",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "description": "Provides interchangeable themes as classes, images, and icons to React components.",
   "main": "./lib/index.js",
   "scripts": {
