@@ -229,23 +229,38 @@ const reducers = {
 
 const enhancer = next => (reducer, initialState, enhancer) => {
   const store = next(reducer, initialState, enhancer);
-  const state = initialState || {};
-  const { themes, themesFiles, themeName } = state;
-  const theme = themes && themes[themeName] || state.theme;
-  const themeFiles = themesFiles && themesFiles[themeName];
-  let initAction = null;
+  let currentThemeName = null;
 
-  if (theme || themeFiles) {
-    initAction = theme && actions.initTheme(themeName, themeFiles, theme);
+  function setTheme(state) {
+    const { themes, themesFiles, themeName } = state;
+    const theme = themes && themes[themeName] || state.theme;
+    const themeFiles = themesFiles && themesFiles[themeName];
+    let initAction = null;
 
-    if (initAction && (!canUseDOM || initAction.link && initAction.script)) {
-      store.dispatch(initAction);
-    } else if (canUseDOM) {
-      actions.loadTheme(themeName, themeFiles, theme)(store.dispatch);
-    } else {
-      store.dispatch(actions.loadTheme(themeName, themeFiles, theme));
+    currentThemeName = themeName;
+
+    if (theme || themeFiles) {
+      initAction = theme && actions.initTheme(themeName, themeFiles, theme);
+
+      if (initAction && (!canUseDOM || initAction.link && initAction.script)) {
+        store.dispatch(initAction);
+      } else if (canUseDOM) {
+        actions.loadTheme(themeName, themeFiles, theme)(store.dispatch);
+      } else {
+        store.dispatch(actions.loadTheme(themeName, themeFiles, theme));
+      }
     }
   }
+
+  setTheme(initialState || {});
+
+  store.subscribe(() => {
+    const nextState = store.getState();
+
+    if (nextState.themeName !== currentThemeName) {
+      setTheme(nextState);
+    }
+  });
 
   if (process.env.NODE_ENV !== 'production') {
     if (canUseDOM) {
