@@ -65,36 +65,67 @@ const actions = {
     let script = null;
     let link = null;
 
+    let waitCount = 0;
+    const finish = dispatch => {
+      dispatch({
+        type: LOAD_THEME, themeName, theme, themeFiles, link, script
+      });
+    };
+
     if (canUseDOM) {
-      return dispatch => {
-        link = document.createElement('link');
-        document.head.appendChild(link);
-        link.rel = 'stylesheet';
-        link.type = 'text/css';
-        link.href = cssFile;
-
+      return (dispatch, getState) => {
         script = findScript(jsFile);
+        link = findLink(cssFile);
 
-        if (theme && script) {
-          dispatch({
-            type: LOAD_THEME, themeName, theme, themeFiles, link, script
-          });
-        } else if (script) {
+        if (script && !theme) {
           theme = window[themeName].default || window[themeName];
-          dispatch({
-            type: LOAD_THEME, themeName, theme, themeFiles, link, script
-          });
+        }
+
+        if (theme && script && link) {
+          finish(dispatch);
         } else {
-          script = document.createElement('script');
-          document.head.appendChild(script);
-          script.type = 'text/javascript';
-          script.onload = () => {
-            theme = window[themeName].default || window[themeName];
-            dispatch({
-              type: LOAD_THEME, themeName, theme, themeFiles, link, script
-            });
-          };
-          script.src = jsFile;
+          if (!script) {
+            waitCount++;
+            script = document.createElement('script');
+            document.head.appendChild(script);
+            script.type = 'text/javascript';
+            script.onload = () => {
+              theme = window[themeName].default || window[themeName];
+
+              if (--waitCount === 0) {
+                finish(dispatch);
+              }
+            };
+            script.src = jsFile;
+          }
+
+          if (!link) {
+            waitCount++;
+            link = document.createElement('link');
+            document.head.appendChild(link);
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = cssFile;
+            link.onload = link.onerror = () => {
+              const { themesFiles } = getState();
+
+              for (let themeName in themesFiles) {
+                let { cssFile: otherCssFile } = themesFiles[themeName];
+
+                if (otherCssFile !== cssFile) {
+                  let otherLink = findLink(otherCssFile);
+
+                  if (otherLink && otherLink.parentNode) {
+                    otherLink.parentNode.removeChild(otherLink);
+                  }
+                }
+              }
+
+              if (--waitCount === 0) {
+                finish(dispatch);
+              }
+            };
+          }
         }
       };
     } else {
@@ -102,9 +133,7 @@ const actions = {
         const { themes } = getState();
 
         theme = themes && themes[themeName] || null;
-        dispatch({
-          type: LOAD_THEME, themeName, theme, themeFiles, link, script
-        });
+        finish(dispatch);
       };
     }
   }
@@ -203,9 +232,6 @@ const reducers = {
     switch (action.type) {
       case INIT_THEME:
       case LOAD_THEME:
-        if (state && state.parentNode && state !== link) {
-          state.parentNode.removeChild(state);
-        }
         return link || null;
 
       default:
@@ -231,9 +257,10 @@ const enhancer = next => (reducer, initialState, enhancer) => {
   const store = next(reducer, initialState, enhancer);
   let currentThemeName = null;
 
-  function setTheme(state) {
+  function setTheme(state, init) {
+    const { dispatch, getState } = store;
     const { themes, themesFiles, themeName } = state;
-    const theme = themes && themes[themeName] || state.theme;
+    const theme = themes && themes[themeName] || init && state.theme;
     const themeFiles = themesFiles && themesFiles[themeName];
     let initAction = null;
 
@@ -245,14 +272,14 @@ const enhancer = next => (reducer, initialState, enhancer) => {
       if (initAction && (!canUseDOM || initAction.link && initAction.script)) {
         store.dispatch(initAction);
       } else if (canUseDOM) {
-        actions.loadTheme(themeName, themeFiles, theme)(store.dispatch);
+        actions.loadTheme(themeName, themeFiles, theme)(dispatch, getState);
       } else {
         store.dispatch(actions.loadTheme(themeName, themeFiles, theme));
       }
     }
   }
 
-  setTheme(initialState || {});
+  setTheme(initialState || {}, true);
 
   store.subscribe(() => {
     const nextState = store.getState();
@@ -265,10 +292,11 @@ const enhancer = next => (reducer, initialState, enhancer) => {
   if (process.env.NODE_ENV !== 'production') {
     if (canUseDOM) {
       window.themeReloaders.push((reloadedThemeName, theme) => {
-        const { themeName, themeFiles } = store.getState();
+        const { dispatch, getState } = store;
+        const { themeName, themeFiles } = getState();
 
         if (themeName === reloadedThemeName) {
-          actions.loadTheme(themeName, themeFiles, theme)(store.dispatch);
+          actions.loadTheme(themeName, themeFiles, theme)(dispatch, getState);
         }
       });
     }
