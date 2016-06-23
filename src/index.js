@@ -60,13 +60,15 @@ const actions = {
     return { type: INIT_THEME, themeName, theme, themeFiles, link, script };
   },
 
-  loadTheme(themeName, themeFiles, theme) {
-    const { jsFile, cssFile } = themeFiles;
+  loadTheme(themeName, themeFiles, theme, reload) {
     let script = null;
     let link = null;
-
     let waitCount = 0;
+    let tempfix = null;
     const finish = dispatch => {
+      if (tempfix) {
+        tempfix();
+      }
       dispatch({
         type: LOAD_THEME, themeName, theme, themeFiles, link, script
       });
@@ -74,8 +76,26 @@ const actions = {
 
     if (canUseDOM) {
       return (dispatch, getState) => {
+        // temp fix for hot reloading, not sure why this is suddenly broken
+        const { themesFiles } = getState();
+        tempfix = () => {
+          for (let someThemeName in themesFiles) {
+            if (someThemeName !== themeName) {
+              let someLink = findLink(themesFiles[someThemeName].cssFile);
+
+              if (someLink && someLink.parentNode) {
+                someLink.parentNode.removeChild(someLink);
+              }
+            }
+          }
+        };
+        themeFiles = themesFiles[themeName];
+        // end temp fix
+
+        const { jsFile, cssFile } = themeFiles;
+
         script = findScript(jsFile);
-        link = findLink(cssFile);
+        link = !reload && findLink(cssFile);
 
         if (script && !theme) {
           theme = window[themeName].default || window[themeName];
@@ -296,7 +316,9 @@ const enhancer = next => (reducer, initialState, enhancer) => {
         const { themeName, themeFiles } = getState();
 
         if (themeName === reloadedThemeName) {
-          actions.loadTheme(themeName, themeFiles, theme)(dispatch, getState);
+          actions.loadTheme(
+            themeName, themeFiles, theme, true
+          )(dispatch, getState);
         }
       });
     }
