@@ -97,7 +97,7 @@ const actions = {
         script = findScript(jsFile);
         link = !reload && findLink(cssFile);
 
-        if (script && !theme) {
+        if (script && !theme && window[themeName]) {
           theme = window[themeName].default || window[themeName];
         }
 
