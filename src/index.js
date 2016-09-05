@@ -95,13 +95,13 @@ const actions = {
         const { jsFile, cssFile } = themeFiles;
 
         script = findScript(jsFile);
-        link = !reload && findLink(cssFile);
+        link = findLink(cssFile);
 
         if (script && !theme && window[themeName]) {
           theme = window[themeName].default || window[themeName];
         }
 
-        if (theme && script && link) {
+        if (theme && script && link && !reload) {
           finish(dispatch);
         } else {
           if (!script) {
@@ -119,7 +119,8 @@ const actions = {
             script.src = jsFile;
           }
 
-          if (!link) {
+          if (!link || reload) {
+            const oldLink = reload && link;
             waitCount++;
             link = document.createElement('link');
             document.head.appendChild(link);
@@ -142,6 +143,9 @@ const actions = {
               }
 
               if (--waitCount === 0) {
+                if (oldLink) {
+                  oldLink.parentNode.removeChild(oldLink);
+                }
                 finish(dispatch);
               }
             };
