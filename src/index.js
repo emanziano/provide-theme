@@ -315,7 +315,7 @@ const enhancer = next => (reducer, initialState, enhancer) => {
 
   if (process.env.NODE_ENV !== 'production') {
     if (canUseDOM) {
-      window.themeReloaders.push((reloadedThemeName, theme) => {
+      const reloadTheme = (reloadedThemeName, theme) => {
         const { dispatch, getState } = store;
         const { themeName, themeFiles } = getState();
 
@@ -324,7 +324,14 @@ const enhancer = next => (reducer, initialState, enhancer) => {
             themeName, themeFiles, theme, true
           )(dispatch, getState);
         }
-      });
+      };
+
+      window.themeReloaders.push(reloadTheme);
+
+      // temp fix for server rendering missing hot reloaded class names
+      if (window.clientStates) {
+        reloadTheme(currentThemeName);
+      }
     }
   }
 
